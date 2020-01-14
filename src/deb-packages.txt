@@ -1,0 +1,6 @@
+g++
+cmake
+libssl-dev
+autoconf
+pkg-config
+libtool
