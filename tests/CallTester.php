@@ -337,7 +337,7 @@ class CallTester {
 
     $callerPreprocessedPath = "{$preprocessedDir}{$this->libraryVersion}_{$fileNameCaller}_{$name}_{$iteration}.pcm";
     $callerOutPath = "{$outDir}{$this->libraryVersion}_{$fileNameCallee}_{$name}_{$iteration}.pcm";
-    $callerCommand = "{$ldPreload} {$netnsPrefix} bin/tgvoipcall {$ipPort} {$callerTag} -k {$key} -i {$fileCaller} -p {$callerPreprocessedPath} -o {$callerOutPath} -c {$configPath} -r caller {$netOption} > {$callerOutPath}.log 2>&1";
+    $callerCommand = "{$netnsPrefix} {$ldPreload} bin/tgvoipcall {$ipPort} {$callerTag} -k {$key} -i {$fileCaller} -p {$callerPreprocessedPath} -o {$callerOutPath} -c {$configPath} -r caller {$netOption} > {$callerOutPath}.log 2>&1";
 
     $calleePreprocessedPath = "{$preprocessedDir}{$this->libraryVersion}_{$fileNameCallee}_{$name}_{$iteration}.pcm";
     $calleeOutPath = "{$outDir}{$this->libraryVersion}_{$fileNameCaller}_{$name}_{$iteration}.pcm";
