@@ -40,7 +40,7 @@ ip netns exec client1 ip link set lo up
 ###############################################
 # Set up tunnel for namespace                 #
 ###############################################
-ip link del v-eth1
+ip link del v-eth1 &>/dev/null
 ip link add v-eth1 type veth peer name v-peer1
 ip link set v-peer1 netns client1
 ip addr add 10.201.202.1/24 dev v-eth1
