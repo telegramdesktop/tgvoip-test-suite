@@ -141,7 +141,11 @@ void init(int argc, char **argv) {
     char buf[16];
     if (sscanf(argv[1], "%15[0-9.]:%hu", buf, &ep.port) != 2)
         throw std::invalid_argument(std::string("Incorrect reflector address: ") + argv[1]);
-    ep.host = buf;
+    TgVoipEdpointHost host = {
+      .ipv4 = std::string(buf),
+      .ipv6 = std::string(),
+    };
+    ep.host = host;
 
     int len;
     sscanf(argv[2], "%*32[0-9a-f]%n", &len);

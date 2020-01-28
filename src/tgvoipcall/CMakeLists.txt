@@ -18,13 +18,13 @@ ENDIF()
 
 ExternalProject_Add(
         libtgvoip
-	URL https://github.com/telegramdesktop/libtgvoip/archive/88b47b6.tar.gz
+	URL https://github.com/telegramdesktop/libtgvoip/archive/c5651ff.tar.gz
 	#Unstable
-	#URL https://github.com/telegramdesktop/libtgvoip/archive/f775311.tar.gz
+	#URL https://github.com/telegramdesktop/libtgvoip/archive/da27199.tar.gz
         PREFIX libtgvoip
         BUILD_IN_SOURCE 1
-	#CONFIGURE_COMMAND ./configure CPPFLAGS=-DTGVOIP_LOG_VERBOSITY=5 --enable-audio-callback --without-pulse --without-alsa
-        CONFIGURE_COMMAND ./configure CPPFLAGS=-DTGVOIP_LOG_VERBOSITY=0 --enable-audio-callback --without-pulse --without-alsa
+	CONFIGURE_COMMAND ./configure CPPFLAGS=-DTGVOIP_LOG_VERBOSITY=5 --enable-audio-callback --without-pulse --without-alsa
+	#CONFIGURE_COMMAND ./configure CPPFLAGS=-DTGVOIP_LOG_VERBOSITY=0 --enable-audio-callback --without-pulse --without-alsa
         BUILD_COMMAND make
         INSTALL_COMMAND ""
 )
