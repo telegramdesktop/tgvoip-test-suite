@@ -312,7 +312,7 @@ class CallTester {
     $ipPort = "{$endpoint['ip']}:{$endpoint['port']}";
     $callerTag = $endpoint['peer_tags']['caller'];
     $calleeTag = $endpoint['peer_tags']['callee'];
-    $netOption = $this->net ? " -n {$this->net}" : '';
+    $netOption = $this->net ? " -t {$this->net}" : '';
     $ldPreload = "LD_PRELOAD={$this->libraryPath} ";
 
     $name = \trim($this->name, ',');
