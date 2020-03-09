@@ -1,14 +1,17 @@
 <?php
 
-require_once('tests/CallRemoteTester.php');
-$tester = new CallRemoteTester('167.71.54.13', 'tgvoip-test-suite-new', $argv[0], true);
+require_once('tests/CallTester.php');
+// To use between two hosts, copy the folder and use CallRemoteTester class.
+// SSH connection with ControlMaster is highly recommended
+// $tester = new CallRemoteTester('10.0.0.2', 'tgvoip-test-suite', $argv[0], true);
+$tester = new CallTester($argv[0], true);
 
 
 
 $libraries = [
   'stable'            => 'lib/libtgvoip-stable.so',
-  'unstable'          => 'lib/libtgvoip-unstable.so',
-  'newunstable'       => 'lib/libtgvoip-unstable-2.6.so',
+  'unstable-2.5'      => 'lib/libtgvoip-unstable.so',
+  'unstable-2.6'      => 'lib/libtgvoip-unstable-2.6.so',
 ];
 $files = 2;
 for ($i = 0; $i < $files; $i++) {

@@ -328,7 +328,7 @@ class CallTester {
     $ipPort = "{$endpoint['ip']}:{$endpoint['port']}";
     $callerTag = $endpoint['peer_tags']['caller'];
     $calleeTag = $endpoint['peer_tags']['callee'];
-    $netOption = $this->net ? " -n {$this->net}" : '';
+    $netOption = $this->net ? " -t {$this->net}" : '';
     $libraryFilename = basename($this->libraryPath);
     if ($libraryFilename == 'libtgvoip.so.0' ||
         $libraryFilename == 'libtgvoip.so') {
@@ -782,5 +782,37 @@ class CallTester {
       $startTime = microtime(true);
     }
     echo '[+'.round(microtime(true) - $startTime, 3).'s] '.$str.PHP_EOL;
+  }
+}
+
+class CallRemoteTester extends CallTester {
+  /**
+   * Constructor.
+   *
+   * @param string $calleeHost    ssh host of second host
+   * @param string $calleePath    path to tgvoip-test-suite folder on second host
+   * @param string $me    $argv[0], path of current script
+   * @param bool $verbose true for verbose output
+   * @param string $dev   Name of network interface
+   */
+  public function __construct(string $calleeHost, string $calleePath, string $me, bool $verbose = false, string $dev = 'v-peer1') {
+    parent::__construct($me, $verbose, $dev);
+    $this->calleeHost = $calleeHost;
+    $this->calleePath = $calleePath;
+  }
+
+  protected function execSyncCallee(string $cmd) {
+    $cmd = 'ssh '.$this->calleeHost.' "cd '.$this->calleePath.' && '.$cmd.'"';
+    return parent::execSyncCallee($cmd);
+  }
+
+  protected function execBackgroundCallee(string $cmd) {
+    $cmd = 'ssh '.$this->calleeHost.' "cd '.$this->calleePath.' && '.$cmd.'"';
+    return parent::execBackgroundCallee($cmd);
+  }
+
+  protected function copyFileFromCallee(string $path) {
+    $cmd = "scp {$this->calleeHost}:{$path} {$path}";
+    parent::execSync($cmd);
   }
 }
