@@ -9,9 +9,10 @@ $tester = new CallTester($argv[0], true);
 
 
 $libraries = [
-  'stable'            => 'lib/libtgvoip-stable.so',
-  'unstable-2.5'      => 'lib/libtgvoip-unstable.so',
-  'unstable-2.6'      => 'lib/libtgvoip-unstable-2.6.so',
+  'stable'            => 'lib/libtgvoip-stable.so', // Available currently in App Store / Play Market
+  'unstable-2.5'      => 'lib/libtgvoip-unstable.so', // Unstable version, base version for VoIP Contest: Stage 2
+  'unstable-2.6'      => 'lib/libtgvoip-unstable-2.6.so', // Improved unstable version, base version for VoIP Contest: Stage 3
+  // Add your version here
 ];
 $files = 2;
 for ($i = 0; $i < $files; $i++) {
