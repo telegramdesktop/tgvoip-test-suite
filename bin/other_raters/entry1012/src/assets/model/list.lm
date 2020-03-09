@@ -1,0 +1,926 @@
+#############################################################################
+## Copyright (c) 1996, Carnegie Mellon University, Cambridge University,
+## Ronald Rosenfeld and Philip Clarkson
+## Version 3, Copyright (c) 2006, Carnegie Mellon University 
+## Contributors includes Wen Xu, Ananlada Chotimongkol, 
+## David Huggins-Daines, Arthur Chan and Alan Black 
+#############################################################################
+=============================================================================
+===============  This file was produced by the CMU-Cambridge  ===============
+===============     Statistical Language Modeling Toolkit     ===============
+=============================================================================
+This is a 3-gram language model, based on a vocabulary of 194 words,
+  which begins "</s>", "<s>", "a"...
+This is a CLOSED-vocabulary model
+  (OOVs eliminated from training data and are forbidden in test data)
+Good-Turing discounting was applied.
+1-gram frequency of frequency : 127 
+2-gram frequency of frequency : 205 13 7 3 5 1 0 
+3-gram frequency of frequency : 238 24 13 5 9 2 0 
+1-gram discounting ratios : 0.98 
+2-gram discounting ratios : 0.07 0.80 0.54 
+3-gram discounting ratios : 0.13 0.80 0.47 
+This file is in the ARPA-standard format introduced by Doug Paul.
+
+p(wd3|wd1,wd2)= if(trigram exists)           p_3(wd1,wd2,wd3)
+                else if(bigram w1,w2 exists) bo_wt_2(w1,w2)*p(wd3|wd2)
+                else                         p(wd3|w2)
+
+p(wd2|wd1)= if(bigram exists) p_2(wd1,wd2)
+            else              bo_wt_1(wd1)*p_1(wd2)
+
+All probs and back-off weights (bo_wt) are given in log10 form.
+
+Data formats:
+
+Beginning of data mark: \data\
+ngram 1=nr            # number of 1-grams
+ngram 2=nr            # number of 2-grams
+ngram 3=nr            # number of 3-grams
+
+\1-grams:
+p_1     wd_1 bo_wt_1
+\2-grams:
+p_2     wd_1 wd_2 bo_wt_2
+\3-grams:
+p_3     wd_1 wd_2 wd_3 
+
+end of data mark: \end\
+
+\data\
+ngram 1=194
+ngram 2=307
+ngram 3=364
+
+\1-grams:
+-3.4659 </s>	0.0000
+-3.4659 <s>	0.0000
+-3.4659 a	-0.0326
+-1.9276 act	-1.5510
+-1.8358 add	-1.5734
+-3.4659 adding	-0.0326
+-1.9820 age	-0.7898
+-3.4659 air	-0.0326
+-1.7963 also	-1.6742
+-1.4860 and	-1.3985
+-3.4659 apart	-0.0274
+-3.4659 at	-0.0326
+-3.4659 badly	-0.0326
+-3.1581 before	0.0376
+-1.8909 began	-1.5782
+-3.4659 bell	-0.0326
+-3.4659 bind	0.0374
+-3.4659 birth	-0.0198
+-3.4659 books	-0.0326
+-1.8909 break	-1.5210
+-1.8909 but	-1.5854
+-3.4659 cat	-0.0324
+-1.8156 cats	-1.6483
+-1.9820 cheese	-1.5006
+-3.4659 chicks	-0.0326
+-3.4659 clear	-0.0326
+-3.4659 closely	0.0374
+-3.1581 coat	0.0378
+-3.4659 colt	-0.0326
+-3.4659 cooked	-0.0324
+-3.4659 cool	-0.0326
+-3.4659 cow	-0.0326
+-1.8909 crate	-1.5854
+-2.0119 crawled	-1.4729
+-3.4659 crooked	-0.0326
+-3.4659 days	0.0374
+-1.9276 deserve	-1.5389
+-3.4659 dirty	-0.0326
+-1.8156 dogs	-1.6594
+-1.8909 don't	-1.5854
+-3.4659 drug	-0.0326
+-1.8680 each	-1.6061
+-3.4659 early	-0.0326
+-3.4659 face	-0.0326
+-3.4659 failed	-0.0198
+-3.4659 fast	-0.0326
+-1.9820 fence	-0.7732
+-1.9150 fire	-0.8922
+-3.4659 fool	0.0374
+-3.4659 for	-0.0326
+-3.4659 friendly	-0.0326
+-1.9276 friends	-1.5511
+-3.4659 frosty	-0.0326
+-3.4659 full	-0.0214
+-3.4659 gang	-0.0324
+-3.4659 gas	-0.0326
+-3.1581 gave	-0.0324
+-3.4659 girl	-0.0324
+-1.7963 gives	-1.6651
+-1.9028 glass	-1.2363
+-3.4659 go	-0.0324
+-3.4659 grass	-0.0326
+-3.4659 grease	-0.0326
+-1.9276 great	-1.5389
+-3.4659 hailed	0.0374
+-1.8156 hate	-1.5927
+-3.4659 her	-0.0326
+-2.0119 high	-1.4578
+-3.4659 him	-0.0326
+-3.4659 his	-0.0326
+-2.0119 hog	-1.4729
+-3.4659 hoist	0.0374
+-3.4659 home	0.0374
+-3.4659 hop	-0.0271
+-1.9028 hot	-1.5835
+-3.4659 hung	-0.0326
+-1.9820 improves	-1.4954
+-2.7601 in	-0.6614
+-3.4659 inside	0.0374
+-1.7870 is	-1.7062
+-3.4659 it	-0.0326
+-1.9276 jail	-1.0258
+-3.4659 joy	-0.0326
+-3.4659 keeps	-0.0326
+-3.4659 kept	-0.0326
+-3.4659 king	-0.0326
+-3.4659 kittens	0.0374
+-3.4659 lake	-0.0326
+-3.4659 lay	-0.0319
+-3.4659 lazy	-0.0326
+-3.4659 leads	-0.0198
+-3.1581 left	0.0376
+-3.4659 lift	0.0374
+-3.4659 limp	0.0374
+-3.4659 living	-0.0326
+-3.4659 load	-0.0198
+-3.4659 loud	-0.0326
+-3.4659 maze	-0.0326
+-3.4659 meal	-0.0321
+-3.4659 mend	0.0374
+-3.4659 mesh	-0.0326
+-3.4659 morning	-0.0326
+-3.4659 mouse	-0.0326
+-1.9150 move	-1.4981
+-1.8909 new	-0.9302
+-3.4659 no	-0.0326
+-3.4659 note	-0.0326
+-1.7963 oak	-1.6741
+-1.5899 of	-1.5230
+-3.4659 off	-0.0326
+-1.9150 on	-1.5052
+-3.4659 once	-0.0326
+-1.8909 open	-1.5210
+-1.9276 orders	-1.5465
+-1.8156 other	-0.8820
+-3.1581 out	0.0376
+-1.8909 over	-1.5097
+-3.4659 passed	-0.0326
+-3.4659 path	-0.0198
+-1.8909 pipe	-1.5854
+-3.4659 pleasure	-0.0326
+-3.4659 plunge	-0.0319
+-1.8358 product	-1.6321
+-3.4659 purse	-0.0321
+-3.4659 rained	-0.0183
+-3.4659 rang	-0.0326
+-3.4659 reach	0.0374
+-3.4659 read	-0.0326
+-3.4659 reared	-0.0183
+-3.4659 reef	-0.0326
+-3.4659 response	0.0374
+-3.4659 rider	-0.0275
+-1.9820 ripe	-1.5006
+-3.4659 road	-0.0326
+-1.9276 rob	-1.5511
+-3.4659 rope	-0.0326
+-3.4659 ruled	0.0374
+-1.8909 rust	-1.5854
+-3.4659 same	-0.0326
+-3.4659 seven	-0.0326
+-1.7963 shade	-1.6670
+-3.4659 sharp	-0.0326
+-3.4659 shimmered	-0.0319
+-3.4659 ship	-0.0321
+-3.4659 shoulder	-0.0326
+-3.4659 sickness	-0.0326
+-3.4659 size	-0.0214
+-3.4659 snowed	-0.0326
+-1.9276 speed	-1.1972
+-3.4659 square	-0.0326
+-3.4659 state	-0.0319
+-3.4659 stone	-0.0271
+-3.4659 store	-0.0326
+-3.4659 strained	-0.0183
+-3.4659 stray	-0.0326
+-1.7963 strong	-1.6668
+-1.8358 sum	-1.6306
+-3.4659 sums	-0.0274
+-3.4659 sun	0.0374
+-3.4659 take	0.0374
+-3.4659 tall	-0.0326
+-3.4659 tank	0.0374
+-1.9820 taste	-1.4938
+-0.8266 the	-1.1085
+-3.4659 there	-0.0256
+-1.5783 these	-1.8805
+-1.9276 thieves	-1.5511
+-3.4659 third	-0.0326
+-1.8358 three	-0.9998
+-3.4659 threw	0.0374
+-3.4659 through	0.0374
+-1.5348 to	-1.1906
+-3.4659 torn	-0.0326
+-3.4659 trash	0.0374
+-2.0119 under	-1.4070
+-3.4659 useless	-0.0326
+-1.9150 vat	-1.5626
+-3.4659 verse	-0.0324
+-2.8570 was	-0.0321
+-3.4659 week	0.0374
+-3.4659 what	-0.0326
+-1.8909 while	-1.5742
+-1.9276 who	-1.5511
+-3.4659 wide	-0.0326
+-3.4659 will	-0.0326
+-3.4659 winding	-0.0326
+-3.4659 wipe	0.0374
+-3.4659 wire	-0.0326
+-1.6529 with	-1.8098
+-3.4659 wrist	-0.0321
+-3.4659 wrong	-0.0326
+-3.4659 you	-0.0326
+-3.4659 young	-0.0326
+-3.4659 your	-0.0324
+
+\2-grams:
+-1.1394 a king -0.0270
+-0.0122 act on 0.0122
+-0.0100 add the -1.5885
+-1.1394 adding fast -0.0270
+-0.1829 age act 0.2341
+-2.6446 age it -0.0270
+-1.2918 age move 1.2940
+-2.6446 age oak 1.6215
+-2.6446 age the -0.0299
+-0.8062 age thieves 0.8573
+-1.1394 air passed -0.0270
+-0.0091 also gives 0.0000
+-0.3102 and also 0.0091
+-0.3291 and dogs 0.0189
+-3.1217 and hailed -0.0270
+-3.1217 and hung -0.0270
+-3.1217 and plunge -0.0270
+-3.1217 and threw -0.0270
+-1.1394 apart on -0.0588
+-1.1394 at once -0.0270
+-1.1394 badly strained -0.0270
+-1.4405 before the -0.0596
+-1.4405 before you -0.0270
+-0.0113 began to -1.3265
+-1.1394 bell rang -0.0270
+-1.1394 bind the -0.0596
+-1.1394 birth to -0.0593
+-1.1394 books at -0.0270
+-0.0113 break the -1.5424
+-0.0113 but don't 0.0113
+-1.1394 cat gave -0.0437
+-0.0095 cats and -1.3785
+-0.0138 cheese improves 0.0138
+-1.1394 chicks inside -0.0270
+-1.1394 clear response -0.0270
+-1.1394 closely the -0.0596
+-1.4405 coat before -0.0437
+-1.4405 coat the -0.0596
+-1.1394 colt reared -0.0270
+-1.1394 cooked before -0.0437
+-1.1394 cool grass -0.0270
+-1.1394 cow lay -0.0270
+-0.0113 crate but 0.0113
+-0.0147 crawled under 0.0147
+-1.1394 crooked maze -0.0270
+-1.1394 days the -0.0596
+-0.0126 deserve jail 0.0521
+-1.1394 dirty face -0.0270
+-0.0700 dogs each 0.0107
+-0.8939 dogs hate 0.8846
+-0.0113 don't break 0.0113
+-1.1394 drug store -0.0270
+-0.0107 each hate 0.0607
+-1.1394 early days -0.0270
+-1.1394 face mend -0.0270
+-1.1394 failed to -0.0593
+-1.1394 fast leads -0.0270
+-1.2780 fence act 1.2821
+-2.6308 fence and -0.0594
+-0.1489 fence move 0.2258
+-1.2896 fence oak 0.9924
+-1.2780 fence the 0.0150
+-1.3545 fire act 0.8674
+-1.3545 fire add 0.9546
+-2.6957 fire cats 1.6031
+-2.6957 fire her -0.0270
+-0.1761 fire oak 0.3010
+-2.6957 fire open 1.5314
+-0.8573 fire the -0.6945
+-1.1394 fool the -0.0596
+-1.1394 for pleasure -0.0270
+-1.1394 friendly gang -0.0270
+-0.0122 friends deserve 0.0000
+-1.1394 frosty air -0.0270
+-1.1394 full of -0.0593
+-1.1394 gang left -0.0437
+-1.1394 gas tank -0.0270
+-1.4405 gave birth -0.0270
+-1.4405 gave no -0.0270
+-1.1394 girl gave -0.0437
+-0.0093 gives shade 0.0103
+-1.3664 glass act 0.8674
+-0.0631 glass add 0.1383
+-2.7076 glass move 1.5085
+-1.3664 glass the -0.6494
+-1.1394 go out -0.0437
+-1.1394 grass lift -0.0270
+-1.1394 grease off -0.0270
+-0.0126 great speed -0.0022
+-1.1394 hailed the -0.0596
+-0.0095 hate the -1.6071
+-1.1394 her purse -0.0270
+-0.0152 high fence -0.1900
+-1.1394 him home -0.0270
+-1.1394 his dirty -0.0270
+-0.0147 hog crawled 0.0147
+-1.1394 hoist the -0.0596
+-1.1394 home the -0.0596
+-1.1394 hop over 1.5201
+-0.0122 hot fire -0.0083
+-2.6957 hot sun -0.0270
+-1.1394 hung limp -0.0270
+-0.0138 improves with -1.2281
+-1.8384 in living -0.0270
+-0.0969 in the -0.0221
+-1.1394 inside the -0.0596
+-2.8207 is in -0.0534
+-0.0091 is strong 0.0091
+-1.1394 it snowed -0.0270
+-1.3545 jail act 0.8674
+-1.3430 jail add 1.3693
+-2.6957 jail move 1.5085
+-0.7112 jail oak 0.8361
+-0.1946 jail the -1.3298
+-1.1394 joy there -0.0270
+-1.1394 keeps chicks -0.0270
+-1.1394 kept him -0.0270
+-1.1394 king ruled -0.0270
+-1.1394 kittens the -0.0596
+-1.1394 lake note -0.0270
+-1.1394 lay in 0.6393
+-1.1394 lazy cow -0.0270
+-1.1394 leads to -0.0593
+-1.4405 left shoulder -0.0270
+-1.4405 left the -0.0596
+-1.1394 lift the -0.0596
+-1.1394 limp the -0.0596
+-1.1394 living a -0.0270
+-1.1394 load to -0.0593
+-1.1394 loud for -0.0270
+-1.1394 maze failed -0.0270
+-1.1394 meal was -0.0518
+-1.1394 mend the -0.0581
+-1.1394 mesh wire -0.0270
+-1.1394 morning read -0.0270
+-1.1394 mouse adding -0.0270
+-0.0119 move the -1.5190
+-2.7192 new add 1.5837
+-1.3664 new cats 1.3886
+-2.7192 new oak 1.6215
+-0.0746 new open 0.0859
+-2.7192 new thieves 1.4966
+-1.1394 no clear -0.0270
+-1.1394 note closely -0.0270
+-0.0091 oak is 0.0091
+-0.3895 of cheese 0.0138
+-3.0202 of the -0.0596
+-0.2473 of these -1.2977
+-3.0202 of useless -0.0270
+-1.1394 off his -0.0270
+-2.6957 on the -0.0596
+-0.0122 on these -1.2854
+-1.1394 once hop -0.0270
+-0.0113 open the -1.5403
+-0.0122 orders with -1.2159
+-1.4514 other act 0.8674
+-1.4399 other add 1.3693
+-2.7926 other move 1.5085
+-0.8751 other oak 0.9031
+-2.7926 other open 1.5314
+-0.1619 other the -1.4764
+-2.7926 other thieves 1.4966
+-1.4405 out loud -0.0270
+-1.4405 out the -0.0596
+-0.0116 over the -1.9170
+-1.1394 passed through -0.0270
+-1.1394 path to -0.0593
+-0.0113 pipe began 0.0113
+-1.1394 pleasure hoist -0.0270
+-1.1394 plunge in 0.6393
+-0.0100 product of -1.2712
+-1.1394 purse was -0.0518
+-1.1394 rained and -0.0594
+-1.1394 rang what -0.0270
+-1.1394 reach the -0.0596
+-1.1394 read verse -0.0270
+-1.1394 reared and -0.0594
+-1.1394 reef sickness -0.0270
+-1.1394 response the -0.0596
+-1.1394 rider act 1.4966
+-0.0138 ripe taste 0.0138
+-1.1394 road shimmered -0.0270
+-0.0122 rob friends 0.0122
+-1.1394 rope will -0.0270
+-1.1394 ruled the -0.0596
+-0.0113 rust while 0.0000
+-1.1394 same morning -0.0270
+-1.1394 seven books -0.0270
+-0.0810 shade cats 0.0717
+-1.4703 shade move 0.8793
+-1.4703 shade oak 0.9924
+-1.0700 shade the -0.1352
+-1.1394 sharp reef -0.0270
+-1.1394 shimmered in 0.6393
+-1.1394 ship was -0.0518
+-1.1394 shoulder take -0.0270
+-1.1394 sickness kept -0.0270
+-1.1394 size of -0.0593
+-1.1394 snowed rained -0.0270
+-2.6957 speed add 1.5837
+-0.7782 speed move 0.7901
+-2.6957 speed open 1.5314
+-0.1091 speed the -1.3830
+-1.1394 square stone -0.0270
+-1.1394 state in 0.6393
+-1.1394 stone over 1.5201
+-1.1394 store mesh -0.0270
+-1.1394 strained and -0.0594
+-1.1394 stray cat -0.0270
+-0.0091 strong and -1.3800
+-0.0100 sum to -1.3324
+-1.1394 sums move 1.5085
+-1.1394 sun the -0.0596
+-1.1394 take the -0.0596
+-1.1394 tall rider -0.0270
+-1.1394 tank the -0.0202
+-0.0138 taste of -1.2638
+-3.7799 the bell -0.0270
+-2.4387 the coat -0.0270
+-3.7799 the colt -0.0270
+-3.7799 the cool -0.0270
+-1.0607 the crate 0.0113
+-3.7799 the crooked -0.0270
+-3.7799 the drug -0.0270
+-3.7799 the early -0.0270
+-2.4387 the fence -0.0351
+-3.7799 the friendly -0.0270
+-3.7799 the frosty -0.0270
+-3.7799 the gas -0.0270
+-1.0842 the glass -0.0018
+-3.7799 the grease -0.0270
+-1.1781 the high 0.0000
+-1.1781 the hog 0.0147
+-1.0842 the hot -0.0270
+-3.7799 the lake -0.0270
+-3.7799 the lazy -0.0270
+-3.7799 the load -0.0270
+-3.7799 the meal -0.0270
+-3.7799 the mouse -0.0270
+-0.9970 the other 0.0157
+-1.0607 the pipe 0.0113
+-1.0070 the product 0.0100
+-1.1491 the ripe 0.0138
+-3.7799 the rope -0.0270
+-3.7799 the same -0.0270
+-3.7799 the seven -0.0270
+-3.7799 the sharp -0.0270
+-3.7799 the ship -0.0270
+-3.7799 the size -0.0270
+-3.7799 the square -0.0270
+-3.7799 the state -0.0270
+-3.7799 the stray -0.0270
+-1.0070 the sum 0.0100
+-3.7799 the tall -0.0270
+-3.7799 the third -0.0270
+-1.0842 the vat 0.0119
+-3.7799 the wide -0.0270
+-3.7799 the winding -0.0270
+-3.7799 the wrist -0.0270
+-3.7799 the young -0.0270
+-1.1394 there is -0.0590
+-0.3480 these orders 0.0122
+-0.2688 these three 0.0329
+-0.0122 thieves who 0.0122
+-1.1394 third week -0.0270
+-1.4417 three act 0.8674
+-2.7829 three add 1.5837
+-1.4417 three cats 0.9739
+-0.8653 three oak 0.9031
+-1.4301 three open 1.3169
+-0.1811 three thieves 0.0939
+-2.7829 three wipe -0.0270
+-1.1394 threw the -0.0596
+-1.1394 through the -0.0581
+-3.0739 to fool -0.0270
+-3.0739 to kittens -0.0270
+-3.0739 to reach -0.0270
+-0.3547 to rust 0.0113
+-0.3010 to the -1.5885
+-3.0739 to wrong -0.0270
+-3.0739 to your -0.0270
+-1.1394 torn apart -0.0270
+-1.1394 trash the -0.0596
+-0.0147 under the -1.4326
+-1.1394 useless trash -0.0270
+-0.0119 vat over 0.0235
+-1.1394 verse out -0.0437
+-1.7415 was badly -0.0270
+-1.7415 was cooked -0.0270
+-1.7415 was full -0.0270
+-1.7415 was torn -0.0270
+-1.1394 week the -0.0596
+-1.1394 what joy -0.0270
+-0.0116 while new 0.0181
+-0.0122 who rob 0.0122
+-1.1394 wide road -0.0270
+-1.1394 will bind -0.0270
+-1.1394 winding path -0.0270
+-1.1394 wipe the -0.0596
+-1.1394 wire keeps -0.0270
+-0.3424 with age 0.0345
+-0.2755 with great 0.0000
+-1.1394 wrist was -0.0518
+-1.1394 wrong sums -0.0270
+-1.1394 you go -0.0270
+-1.1394 young girl -0.0270
+-1.1394 your left -0.0437
+
+\3-grams:
+-0.8913 a king ruled 
+-0.0126 act on these 
+-0.0102 add the sum 
+-0.8913 adding fast leads 
+-0.0212 age act on 
+-0.8913 age it snowed 
+-0.3296 age move the 
+-0.8913 age oak is 
+-0.8913 age the hog 
+-0.0969 age thieves who 
+-0.8913 air passed through 
+-0.0093 also gives shade 
+-0.0093 and also gives 
+-0.0621 and dogs each 
+-0.9542 and dogs hate 
+-0.8913 and hailed the 
+-0.8913 and hung limp 
+-0.8913 and plunge in 
+-0.8913 and threw the 
+-0.8913 apart on the 
+-0.8913 at once hop 
+-0.8913 badly strained and 
+-0.8913 before the bell 
+-0.8913 before you go 
+-0.0116 began to rust 
+-0.8913 bell rang what 
+-0.8913 bind the seven 
+-0.8913 birth to kittens 
+-0.8913 books at once 
+-0.0116 break the glass 
+-0.0116 but don't break 
+-0.8913 cat gave birth 
+-0.0098 cats and dogs 
+-0.0142 cheese improves with 
+-0.8913 chicks inside the 
+-0.8913 clear response the 
+-0.8913 closely the size 
+-0.8913 coat before you 
+-0.8913 coat the crooked 
+-0.8913 colt reared and 
+-0.8913 cooked before the 
+-0.8913 cool grass lift 
+-0.8913 cow lay in 
+-0.0116 crate but don't 
+-0.0152 crawled under the 
+-0.8913 crooked maze failed 
+-0.8913 days the ship 
+-1.3299 deserve jail act 
+-1.3840 deserve jail add 
+-2.4228 deserve jail move 
+-0.7533 deserve jail oak 
+-0.1891 deserve jail the 
+-0.8913 dirty face mend 
+-0.0110 dogs each hate 
+-0.0792 dogs hate the 
+-0.0116 don't break the 
+-0.8913 drug store mesh 
+-0.0110 each hate the 
+-0.8913 early days the 
+-0.8913 face mend the 
+-0.8913 failed to fool 
+-0.8913 fast leads to 
+-0.3296 fence act on 
+-0.8913 fence and plunge 
+-0.0202 fence move the 
+-0.0995 fence oak is 
+-1.3684 fence the pipe 
+-1.3684 fence the ripe 
+-1.3684 fence the rope 
+-0.0995 fire act on 
+-0.0995 fire add the 
+-0.8913 fire cats and 
+-0.8913 fire her purse 
+-0.0185 fire oak is 
+-0.8913 fire open the 
+-0.0969 fire the hog 
+-1.5903 fire the ripe 
+-0.8913 fool the mouse 
+-0.8913 for pleasure hoist 
+-0.8913 friendly gang left 
+-0.0126 friends deserve jail 
+-0.8913 frosty air passed 
+-0.8913 full of useless 
+-0.8913 gang left the 
+-0.8913 gas tank the 
+-0.8913 gave birth to 
+-0.8913 gave no clear 
+-0.8913 girl gave no 
+-0.0830 gives shade cats 
+-1.4612 gives shade move 
+-1.4612 gives shade oak 
+-1.0607 gives shade the 
+-0.0995 glass act on 
+-0.0138 glass add the 
+-0.8913 glass move the 
+-0.0995 glass the pipe 
+-0.8913 go out the 
+-0.8913 grass lift the 
+-0.8913 grease off his 
+-2.4228 great speed add 
+-0.8325 great speed move 
+-2.4228 great speed open 
+-0.1001 great speed the 
+-0.8913 hailed the same 
+-0.0098 hate the other 
+-0.8913 her purse was 
+-1.2997 high fence act 
+-0.1249 high fence move 
+-1.2456 high fence oak 
+-1.2456 high fence the 
+-0.8913 him home the 
+-0.8913 his dirty face 
+-0.0152 hog crawled under 
+-0.8913 hoist the load 
+-0.8913 home the third 
+-0.8913 hop over the 
+-1.3425 hot fire act 
+-1.3425 hot fire add 
+-2.4354 hot fire cats 
+-2.4354 hot fire her 
+-0.1823 hot fire oak 
+-2.4354 hot fire open 
+-0.8451 hot fire the 
+-0.8913 hot sun the 
+-0.8913 hung limp the 
+-0.0142 improves with age 
+-0.8913 in living a 
+-1.4934 in the cool 
+-1.4934 in the early 
+-1.4934 in the friendly 
+-1.4934 in the hot 
+-0.8913 inside the frosty 
+-0.8913 is in living 
+-0.0093 is strong and 
+-0.8913 it snowed rained 
+-0.0995 jail act on 
+-0.3296 jail add the 
+-0.8913 jail move the 
+-0.0669 jail oak is 
+-0.0193 jail the ripe 
+-0.8913 joy there is 
+-0.8913 keeps chicks inside 
+-0.8913 kept him home 
+-0.8913 king ruled the 
+-0.8913 kittens the young 
+-0.8913 lake note closely 
+-0.8913 lay in the 
+-0.8913 lazy cow lay 
+-0.8913 leads to wrong 
+-0.8913 left shoulder take 
+-0.8913 left the drug 
+-0.8913 lift the square 
+-0.8913 limp the stray 
+-0.8913 living a king 
+-0.8913 load to your 
+-0.8913 loud for pleasure 
+-0.8913 maze failed to 
+-0.8913 meal was cooked 
+-0.8913 mend the coat 
+-0.8913 mesh wire keeps 
+-0.8913 morning read verse 
+-0.8913 mouse adding fast 
+-0.0122 move the vat 
+-0.8913 new add the 
+-0.3296 new cats and 
+-0.8913 new oak is 
+-0.0138 new open the 
+-0.8913 new thieves who 
+-0.8913 no clear response 
+-0.8913 note closely the 
+-0.0093 oak is strong 
+-0.0142 of cheese improves 
+-0.8913 of the gas 
+-0.0102 of these three 
+-0.8913 of useless trash 
+-0.8913 off his dirty 
+-0.8913 on the sharp 
+-0.0126 on these orders 
+-0.8913 once hop over 
+-0.0116 open the crate 
+-0.0126 orders with great 
+-0.0995 other act on 
+-0.3296 other add the 
+-0.8913 other move the 
+-0.0792 other oak is 
+-0.8913 other open the 
+-0.0142 other the pipe 
+-2.3827 other the ripe 
+-0.8913 other thieves who 
+-0.8913 out loud for 
+-0.8913 out the wrist 
+-1.3666 over the fence 
+-0.0241 over the hot 
+-0.8913 passed through the 
+-0.8913 path to reach 
+-0.0116 pipe began to 
+-0.8913 pleasure hoist the 
+-0.8913 plunge in the 
+-0.0102 product of these 
+-0.8913 purse was full 
+-0.8913 rained and hailed 
+-0.8913 rang what joy 
+-0.8913 reach the lake 
+-0.8913 read verse out 
+-0.8913 reared and threw 
+-0.8913 reef sickness kept 
+-0.8913 response the meal 
+-0.8913 rider act on 
+-0.0142 ripe taste of 
+-0.8913 road shimmered in 
+-0.0126 rob friends deserve 
+-0.8913 rope will bind 
+-0.8913 ruled the state 
+-0.0116 rust while new 
+-0.8913 same morning read 
+-0.8913 seven books at 
+-0.0113 shade cats and 
+-0.0995 shade move the 
+-0.0995 shade oak is 
+-0.4546 shade the pipe 
+-1.4934 shade the ripe 
+-0.8913 sharp reef sickness 
+-0.8913 shimmered in the 
+-0.8913 ship was torn 
+-0.8913 shoulder take the 
+-0.8913 sickness kept him 
+-0.8913 size of the 
+-0.8913 snowed rained and 
+-0.8913 speed add the 
+-0.0792 speed move the 
+-0.8913 speed open the 
+-0.0854 speed the hog 
+-0.8451 speed the ripe 
+-0.8913 square stone over 
+-0.8913 state in the 
+-0.8913 stone over the 
+-0.8913 store mesh wire 
+-0.8913 strained and hung 
+-0.8913 stray cat gave 
+-0.0093 strong and also 
+-0.0102 sum to the 
+-0.8913 sums move the 
+-0.8913 sun the lazy 
+-0.8913 take the winding 
+-0.8913 tall rider act 
+-0.8913 tank the pipe 
+-0.0142 taste of cheese 
+-0.8913 the bell rang 
+-1.1923 the coat before 
+-1.1923 the coat the 
+-0.8913 the colt reared 
+-0.8913 the cool grass 
+-0.0116 the crate but 
+-0.8913 the crooked maze 
+-0.8913 the drug store 
+-0.8913 the early days 
+-1.1923 the fence and 
+-1.1923 the fence the 
+-0.8913 the friendly gang 
+-0.8913 the frosty air 
+-0.8913 the gas tank 
+-1.3547 the glass act 
+-0.0649 the glass add 
+-2.4476 the glass move 
+-1.3547 the glass the 
+-0.8913 the grease off 
+-0.0152 the high fence 
+-0.0152 the hog crawled 
+-0.0122 the hot fire 
+-2.4476 the hot sun 
+-0.8913 the lake note 
+-0.8913 the lazy cow 
+-0.8913 the load to 
+-0.8913 the meal was 
+-0.8913 the mouse adding 
+-1.4419 the other act 
+-1.4960 the other add 
+-2.5348 the other move 
+-0.9445 the other oak 
+-2.5348 the other open 
+-0.1521 the other the 
+-2.5348 the other thieves 
+-0.0116 the pipe began 
+-0.0102 the product of 
+-0.0142 the ripe taste 
+-0.8913 the rope will 
+-0.8913 the same morning 
+-0.8913 the seven books 
+-0.8913 the sharp reef 
+-0.8913 the ship was 
+-0.8913 the size of 
+-0.8913 the square stone 
+-0.8913 the state in 
+-0.8913 the stray cat 
+-0.0102 the sum to 
+-0.8913 the tall rider 
+-0.8913 the third week 
+-0.0122 the vat over 
+-0.8913 the wide road 
+-0.8913 the winding path 
+-0.8913 the wrist was 
+-0.8913 the young girl 
+-0.8913 there is in 
+-0.0126 these orders with 
+-1.4217 these three act 
+-2.5145 these three add 
+-1.4217 these three cats 
+-0.9243 these three oak 
+-1.4758 these three open 
+-0.1761 these three thieves 
+-2.5145 these three wipe 
+-0.0126 thieves who rob 
+-0.8913 third week the 
+-0.0995 three act on 
+-0.8913 three add the 
+-0.0995 three cats and 
+-0.0792 three oak is 
+-0.3296 three open the 
+-0.0152 three thieves who 
+-0.8913 three wipe the 
+-0.8913 threw the tall 
+-0.8913 through the coat 
+-0.8913 to fool the 
+-0.8913 to kittens the 
+-0.8913 to reach the 
+-0.0116 to rust while 
+-0.0102 to the product 
+-0.8913 to wrong sums 
+-0.8913 to your left 
+-0.8913 torn apart on 
+-0.8913 trash the colt 
+-0.0152 under the high 
+-0.8913 useless trash the 
+-0.0122 vat over the 
+-0.8913 verse out loud 
+-0.8913 was badly strained 
+-0.8913 was cooked before 
+-0.8913 was full of 
+-0.8913 was torn apart 
+-0.8913 week the wide 
+-0.8913 what joy there 
+-2.4595 while new add 
+-1.4207 while new cats 
+-2.4595 while new oak 
+-0.0768 while new open 
+-2.4595 while new thieves 
+-0.0126 who rob friends 
+-0.8913 wide road shimmered 
+-0.8913 will bind the 
+-0.8913 winding path to 
+-0.8913 wipe the grease 
+-0.8913 wire keeps chicks 
+-0.1761 with age act 
+-2.3684 with age it 
+-1.3296 with age move 
+-2.3684 with age oak 
+-2.3684 with age the 
+-0.8751 with age thieves 
+-0.0126 with great speed 
+-0.8913 wrist was badly 
+-0.8913 wrong sums move 
+-0.8913 you go out 
+-0.8913 young girl gave 
+-0.8913 your left shoulder 
+
+\end\

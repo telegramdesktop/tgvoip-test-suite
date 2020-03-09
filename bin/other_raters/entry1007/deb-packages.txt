@@ -1,0 +1,8 @@
+apt-transport-https
+ca-certificates
+curl
+gnupg2
+software-properties-common
+python
+python-pip
+docker-ce

@@ -95,6 +95,12 @@ class CallTester {
    * @var int
    */
   private $net;
+  /**
+   * Network alias
+   *
+   * @var string
+   */
+  private $alias;
 
   /**
    * CSV file write descriptor
@@ -127,7 +133,7 @@ class CallTester {
       $dev = $matches[1];
     }
     $this->token   = require 'token.php'; // <?php return 'token';
-    $this->files   = \glob($me.'/../samples/*');
+    $this->files   = \glob($me.'/../samples/*.pcm');
     $this->testdir = $me.'/../';
     $this->dev     = $dev;
   }
@@ -168,6 +174,7 @@ class CallTester {
 
     $this->net           = null;
     $this->name          = '';
+    $this->alias         = '';
     $this->netemSequence = [];
     $this->commands      = [];
     $this->extraCmd      = '';
@@ -199,6 +206,15 @@ class CallTester {
     }
     $this->name .= "net{$net_str},";
     $this->net = $nets[$net_str];
+    return $this;
+  }
+  /**
+   * Set network short alias.
+   *
+   * @return self
+   */
+  public function networkAlias($alias = 'WiFi'): self {
+    $this->alias = $alias;
     return $this;
   }
   /**
@@ -312,10 +328,18 @@ class CallTester {
     $ipPort = "{$endpoint['ip']}:{$endpoint['port']}";
     $callerTag = $endpoint['peer_tags']['caller'];
     $calleeTag = $endpoint['peer_tags']['callee'];
-    $netOption = $this->net ? " -t {$this->net}" : '';
-    $ldPreload = "LD_PRELOAD={$this->libraryPath} ";
+    $netOption = $this->net ? " -n {$this->net}" : '';
+    $libraryFilename = basename($this->libraryPath);
+    if ($libraryFilename == 'libtgvoip.so.0' ||
+        $libraryFilename == 'libtgvoip.so') {
+      $libraryDir = \dirname($this->libraryPath);
+      $ldPreload = "LD_LIBRARY_PATH={$libraryDir} ";
+    } else {
+      $ldPreload = "LD_PRELOAD={$this->libraryPath} ";
+    }
 
     $name = \trim($this->name, ',');
+    $alias = $this->alias ?: $name;
     if (!strlen($this->fileCaller) || !strlen($this->fileCallee)) {
       $this->chooseCouple();
     }
@@ -326,6 +350,7 @@ class CallTester {
     $fileNameCallee = basename($fileCallee);
 
     $netnsPrefix = $this->netnsPrefix(true);
+    $netnsPrefix2 = $this->netnsPrefix(true, true);
 
     $iteration = mt_rand(1000000, 9999999);
 
@@ -335,13 +360,25 @@ class CallTester {
 
     $configPath = $configDir.'config.json';
 
-    $callerPreprocessedPath = "{$preprocessedDir}{$this->libraryVersion}_{$fileNameCaller}_{$name}_{$iteration}.pcm";
-    $callerOutPath = "{$outDir}{$this->libraryVersion}_{$fileNameCallee}_{$name}_{$iteration}.pcm";
-    $callerCommand = "{$netnsPrefix} {$ldPreload} bin/tgvoipcall {$ipPort} {$callerTag} -k {$key} -i {$fileCaller} -p {$callerPreprocessedPath} -o {$callerOutPath} -c {$configPath} -r caller {$netOption} > {$callerOutPath}.log 2>&1";
+    $tgvoipcall_path = 'bin/tgvoipcall';
 
-    $calleePreprocessedPath = "{$preprocessedDir}{$this->libraryVersion}_{$fileNameCallee}_{$name}_{$iteration}.pcm";
-    $calleeOutPath = "{$outDir}{$this->libraryVersion}_{$fileNameCaller}_{$name}_{$iteration}.pcm";
-    $calleeCommand = "{$ldPreload} bin/tgvoipcall {$ipPort} {$calleeTag} -k {$key} -i {$fileCallee} -p {$calleePreprocessedPath} -o {$calleeOutPath} -c {$configPath} -r callee {$netOption} > {$calleeOutPath}.log 2>&1";
+    $callerPreprocessedPath = "{$preprocessedDir}{$this->libraryVersion}_{$fileNameCaller}_{$alias}_{$iteration}.pcm";
+    $callerOutPath = "{$outDir}{$this->libraryVersion}_{$fileNameCallee}_{$alias}_{$iteration}.pcm";
+    $callerLogPath = $callerOutPath.'.log';
+    $callerCommand = "{$netnsPrefix} {$ldPreload} {$tgvoipcall_path} {$ipPort} {$callerTag} -k {$key} -i {$fileCaller} -p {$callerPreprocessedPath} -o {$callerOutPath} -c {$configPath} -r caller {$netOption} > {$callerLogPath} 2>&1";
+
+    $calleePreprocessedPath = "{$preprocessedDir}{$this->libraryVersion}_{$fileNameCallee}_{$alias}_{$iteration}.pcm";
+    $calleeOutPath = "{$outDir}{$this->libraryVersion}_{$fileNameCaller}_{$alias}_{$iteration}.pcm";
+    $calleeLogPath = $calleeOutPath.'.log';
+    $calleeCommand = "{$netnsPrefix2} {$ldPreload} {$tgvoipcall_path} {$ipPort} {$calleeTag} -k {$key} -i {$fileCallee} -p {$calleePreprocessedPath} -o {$calleeOutPath} -c {$configPath} -r callee {$netOption} > {$calleeLogPath} 2>&1";
+
+    $callerStatsCommand = "bash -c 'cat /sys/class/net/v-eth1/statistics/{rx,tx}_{bytes,packets}'";
+    $callerAfterAddCommand = "grep -oP 'TIMESTAMPS: \K(\d+,\d+,\d+,\d+,\d+)' {$callerLogPath}";
+    $calleeStatsCommand = "bash -c 'cat /sys/class/net/v-eth2/statistics/{rx,tx}_{bytes,packets}'";
+    $calleeAfterAddCommand = "grep -oP 'TIMESTAMPS: \K(\d+,\d+,\d+,\d+,\d+)' {$calleeLogPath}";
+
+    $beforeStatsCaller = explode("\n", $this->execSync($callerStatsCommand));
+    $beforeStatsCallee = explode("\n", $this->execSyncCallee($calleeStatsCommand));
 
     \file_put_contents($configPath, $config);
 
@@ -352,7 +389,7 @@ class CallTester {
     $this->applyNetem($curNetem);
 
     $caller_pid = $this->execBackground($callerCommand);
-    $callee_pid = $this->execBackground($calleeCommand);
+    $callee_pid = $this->execBackgroundCallee($calleeCommand);
 
     while ($nextNetem = array_shift($this->netemSequence)) {
       usleep($curNetem['sleepAfter'] * 1000000);
@@ -366,23 +403,47 @@ class CallTester {
 
     $this->undoNetem($curNetem);
 
-    $csvFD = $this->getCsvWriteFD();
-    $commandShort = "bin/tgvoiprate {$fileCaller} {$calleeOutPath} 2>> {$outDir}rate_errors.log";
-    $shortRating = $this->execSync($commandShort);
-    $shortRating = trim($shortRating);
-    $commandFull = "bin/tgvoiprate {$fileCaller} {$callerPreprocessedPath} {$calleeOutPath} 2>> {$outDir}rate_errors.log";
-    $fullRating = $this->execSync($commandFull);
-    list($fullRatingPrep, $fullRatingOut) = explode(' ', trim($fullRating), 2);
+    $afterStatsCaller = explode("\n", $this->execSync($callerStatsCommand.' && '.$callerAfterAddCommand));
+    $afterStatsCallee = explode("\n", $this->execSyncCallee($calleeStatsCommand.' && '.$calleeAfterAddCommand));
 
-    fputcsv($csvFD, [
+    $inBytesCaller    = $afterStatsCaller[0] - $beforeStatsCaller[0];
+    $inPacketsCaller  = $afterStatsCaller[1] - $beforeStatsCaller[1];
+    $outBytesCaller   = $afterStatsCaller[2] - $beforeStatsCaller[2];
+    $outPacketsCaller = $afterStatsCaller[3] - $beforeStatsCaller[3];
+
+    $inBytesCallee    = $afterStatsCallee[0] - $beforeStatsCallee[0];
+    $inPacketsCallee  = $afterStatsCallee[1] - $beforeStatsCallee[1];
+    $outBytesCallee   = $afterStatsCallee[2] - $beforeStatsCallee[2];
+    $outPacketsCallee = $afterStatsCallee[3] - $beforeStatsCallee[3];
+
+    $callerTimestamps = explode(',', $afterStatsCaller[4] ?: ',,,,');
+    $calleeTimestamps = explode(',', $afterStatsCallee[4] ?: ',,,,');
+
+    $this->copyFileFromCallee($calleeOutPath);
+
+    $rateCommand = "tests/rate-async.sh {$fileCaller} {$callerPreprocessedPath} {$calleeOutPath} 2>> {$outDir}rate_errors.log";
+    $allRatings = explode(',', $this->execSync($rateCommand));
+
+    $row = [
       $this->libraryVersion,
       $fileNameCaller,
-      $name,
+      $alias,
       basename($calleeOutPath),
-      $fullRatingPrep,
-      $fullRatingOut,
-      $shortRating
-    ]);
+      $inBytesCaller,
+      $inPacketsCaller,
+      $outBytesCaller,
+      $outPacketsCaller,
+      $inBytesCallee,
+      $inPacketsCallee,
+      $outBytesCallee,
+      $outPacketsCallee,
+    ];
+    $row = array_merge($row, $callerTimestamps);
+    $row = array_merge($row, $calleeTimestamps);
+    $row = array_merge($row, $allRatings);
+
+    $csvFD = $this->getCsvWriteFD();
+    fputcsv($csvFD, $row);
 
     return $this;
   }
@@ -445,9 +506,21 @@ class CallTester {
     return \proc_close($proc);
   }
 
-  private function execSync(string $cmd) {
+  protected function execSync(string $cmd) {
     $this->log('> '.$cmd);
     return shell_exec($cmd);
+  }
+
+  protected function execSyncCallee(string $cmd) {
+    return $this->execSync($cmd);
+  }
+
+  protected function execBackgroundCallee(string $cmd) {
+    return $this->execBackground($cmd);
+  }
+
+  protected function copyFileFromCallee(string $path) {
+    // Fill in extended classes
   }
 
   private function execBridge(string $cmd) {
@@ -492,6 +565,10 @@ class CallTester {
         if ($header === false) {
           $header = $row;
         } else {
+          if (count($row) < count($header)) {
+            $row[] = '';
+            $row[] = '';
+          }
           $rows[] = array_combine($header, $row);
         }
       }
@@ -507,25 +584,109 @@ class CallTester {
     $rows = $this->readCsvFile($fileName);
 
     $scoresByVersion = [];
-    $scoreTypes = ['ScoreCombined', 'ScorePreprocess', 'ScoreOutput'];
+    $scoresByNetwork = [];
+    $scoreTypes = [
+      'ScoreFinal',
+      'ScoreCombined',
+      'ScoreOutput',
+      'Score1010',
+      'Score1012',
+      'Score1002',
+      'Score1007',
+      'Score997'
+    ];
     $counts = [];
+    $networkTypes = [];
     foreach ($rows as $row) {
+      $rowScores = [];
       foreach ($scoreTypes as $scoreType) {
+        if ($scoreType == 'ScoreFinal') {
+          continue;
+        }
         $score = floatval($row[$scoreType]);
-        $scoresByVersion[$row['LibVersion']][$scoreType][] = $score;
-        @$counts[$row['LibVersion']]++;
+        if ($score < 1.0) {
+          $score = 1.0;
+        } elseif ($score > 5.0) {
+          $score = 5.0;
+        }
+        $rowScores[$scoreType] = $score;
+        $scoresByVersion[$row['Entry']][$scoreType][] = $score;
       }
+      $rowScores['ScoreOutput'] = max($rowScores['ScoreOutput'], $rowScores['Score997']);
+      $scoreFinal = $rowScores['ScoreCombined'] * 0.3 +
+                    $rowScores['ScoreOutput'] * 0.2 +
+                    $rowScores['Score1010'] * 0.16 +
+                    $rowScores['Score1012'] * 0.16  +
+                    $rowScores['Score1007'] * 0.16;
+      $scoresByVersion[$row['Entry']]['ScoreFinal'][] = $scoreFinal;
+      $scoresByNetwork[$row['Entry']][$row['Network']][] = $scoreFinal;
+      $networkTypes[$row['Network']] = true;
+      @$counts[$row['Entry']]++;
     }
 
-    foreach ($scoresByVersion as $version => $scoreTypes) {
+    $aggregated = [];
+    foreach ($scoresByVersion as $version => $versionScores) {
+      $arr = [];
+      foreach ($scoreTypes as $scoreType) {
+        $arr[$scoreType] = $this->calcStddevMean($versionScores[$scoreType]);
+      }
+      $aggregated[$version] = $arr;
+    }
+
+    uasort($aggregated, function ($a, $b) {
+      return intval(($b['ScoreFinal'][1] - $a['ScoreFinal'][1]) * 1000);
+    });
+
+    echo "Scores by library version".PHP_EOL.PHP_EOL;
+    foreach ($aggregated as $version => $versionScores) {
       echo "Version {$version} ({$counts[$version]} ratings)".PHP_EOL;
       echo str_repeat('=', 45).PHP_EOL;
-      foreach ($scoreTypes as $scoreType => $scores) {
-        list($stddev, $mean) = $this->calcStddevMean($scores);
+      foreach ($scoreTypes as $scoreType) {
+        list($stddev, $mean) = $versionScores[$scoreType];
         echo str_pad($scoreType.':', 20, ' ')."mean ".round($mean, 3).", stddev: ".round($stddev, 3).PHP_EOL;
       }
       echo PHP_EOL;
     }
+
+    $networkTypes = array_merge(array_keys($networkTypes), ['Overall']);
+    $aggregated = [];
+    foreach ($scoresByNetwork as $version => $versionScores) {
+      $arr = [];
+      $overall = [];
+      foreach ($networkTypes as $network) {
+        if ($network == 'Overall') {
+          $scores = $overall;
+        } else {
+          $scores = $versionScores[$network] ?? [];
+          $overall = array_merge($overall, $scores);
+        }
+        list(,$arr[$network]) = $this->calcStddevMean($scores);
+      }
+      $aggregated[$version] = $arr;
+    }
+
+    uasort($aggregated, function ($a, $b) {
+      return intval(($b['Overall'][1] - $a['Overall'][1]) * 1000);
+    });
+
+    echo "Scores by network".PHP_EOL.PHP_EOL;
+    $header = str_pad('Network', 20, ' ');
+    foreach ($aggregated as $version => $versionScores) {
+      $header .= '|'.str_pad(substr($version, -12), 12, ' ', STR_PAD_BOTH);
+    }
+    echo $header.PHP_EOL.str_repeat('=', strlen($header)).PHP_EOL;
+    foreach ($networkTypes as $network) {
+      if ($network == 'Overall') {
+        echo str_repeat('-', strlen($header)).PHP_EOL;
+      }
+      echo str_pad(substr($network, -18), 20, ' ');
+      foreach ($aggregated as $version => $versionScores) {
+        $score = isset($versionScores[$network]) ? round($versionScores[$network], 3) : 'n/a';
+        echo '|'.str_pad($score, 12, ' ', STR_PAD_BOTH);
+      }
+      echo PHP_EOL;
+    }
+    echo PHP_EOL;
   }
 
   private function getCsvWriteFD() {
@@ -534,13 +695,36 @@ class CallTester {
       if (!is_file($csvFilePath)) {
         $this->csvFD = fopen($csvFilePath, 'w');
         fputcsv($this->csvFD, [
-          'LibVersion',
+          'Entry',
           'Sample',
           'Network',
           'Distorted',
+          'RxBytesCaller',
+          'RxPacketsCaller',
+          'TxBytesCaller',
+          'TxPacketsCaller',
+          'RxBytesCallee',
+          'RxPacketsCallee',
+          'TxBytesCallee',
+          'TxPacketsCallee',
+          'TimeInitCaller',
+          'TimeFirstReadCaller',
+          'TimeLastReadCaller',
+          'TimeFirstWriteCaller',
+          'TimeLastWriteCaller',
+          'TimeInitCallee',
+          'TimeFirstReadCallee',
+          'TimeLastReadCallee',
+          'TimeFirstWriteCallee',
+          'TimeLastWriteCallee',
+          'ScoreCombined',
           'ScorePreprocess',
           'ScoreOutput',
-          'ScoreCombined'
+          'Score997',
+          'Score1010',
+          'Score1012',
+          'Score1002',
+          'Score1007'
         ]);
       } else {
         $this->csvFD = fopen($csvFilePath, 'a');
@@ -549,10 +733,12 @@ class CallTester {
     return $this->csvFD;
   }
 
-  private function netnsPrefix($as_nobody = false) {
+  private function netnsPrefix($asMyUser = false, $callee = false) {
     static $myuser = false;
-    $netns = 'sudo ip netns exec client1 ';
-    if ($as_nobody) {
+    // return $asMyUser ? '' : 'sudo ';
+    $clientId = $callee ? 2 : 1;
+    $netns = "sudo ip netns exec client{$clientId} ";
+    if ($asMyUser) {
       if ($myuser === false) {
         $myuser = trim(shell_exec('whoami'));
       }

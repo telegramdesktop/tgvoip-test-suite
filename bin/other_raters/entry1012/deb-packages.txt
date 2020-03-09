@@ -1,0 +1,1 @@
+opus-tools libopusfile-dev libopus-dev libssl-dev pocketsphinx build-essential automake libtool libsphinxbase-dev libpocketsphinx-dev pkg-config sphinxbase-utils sphinxtrain

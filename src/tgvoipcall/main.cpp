@@ -2,9 +2,12 @@
 #include <iostream>
 #include <sys/eventfd.h>
 #include <unistd.h>
+#include <cstring>
+#include <time.h>
+#include <sys/time.h>
 #include "TgVoip.h"
 
-#include "webrtc_dsp/rtc_base/logging.h"
+//#include "webrtc_dsp/rtc_base/logging.h"
 
 // using namespace std;
 
@@ -31,6 +34,20 @@ auto inbound = std::fstream();
 bool playing = true;
 bool recorded = false;
 bool failed = false;
+
+uint64_t init_ts = 0;
+uint64_t first_read_ts = 0;
+uint64_t last_read_ts = 0; 
+uint64_t first_write_ts = 0; 
+uint64_t last_write_ts = 0;
+
+
+uint64_t get_microseconds() {
+  struct timeval tv;
+
+  gettimeofday(&tv, NULL);
+  return (uint64_t)(tv.tv_sec) * 1000000 + (uint64_t) tv.tv_usec;
+} 
 
 void callback_state_change(TgVoipState state) {
     switch (state) {
@@ -59,8 +76,13 @@ void play(int16_t* data, size_t len) {
         return;
     outgoing.read((char *) data, len * sizeof(int16_t));
     playing = !outgoing.fail();
-    if (!playing)
+    if (first_read_ts == 0) {
+        first_read_ts = get_microseconds();
+    }
+    last_read_ts = get_microseconds();
+    if (!playing) {
         wait_quit();
+    }
 }
 
 void record(int16_t* data, size_t len) {
@@ -68,6 +90,10 @@ void record(int16_t* data, size_t len) {
         return;
     recorded = true;
     inbound.write((char *)data, len * sizeof(int16_t));
+    if (first_write_ts == 0) {
+        first_write_ts = get_microseconds();
+    }
+    last_write_ts = get_microseconds();
 }
 
 void intermediate(int16_t* data, size_t len) {
@@ -141,11 +167,7 @@ void init(int argc, char **argv) {
     char buf[16];
     if (sscanf(argv[1], "%15[0-9.]:%hu", buf, &ep.port) != 2)
         throw std::invalid_argument(std::string("Incorrect reflector address: ") + argv[1]);
-    TgVoipEdpointHost host = {
-      .ipv4 = std::string(buf),
-      .ipv6 = std::string(),
-    };
-    ep.host = host;
+    ep.host = buf;
 
     int len;
     sscanf(argv[2], "%*32[0-9a-f]%n", &len);
@@ -260,7 +282,7 @@ void init(int argc, char **argv) {
 
 
     TgVoipConfig config = {
-      .initializationTimeout = 5,
+      .initializationTimeout = 8,
       .receiveTimeout = 3,
       .dataSaving = data_saving,
       .enableP2P = false,
@@ -287,6 +309,8 @@ void init(int argc, char **argv) {
       .preprocessed = intermediate,
     };
 
+    init_ts = get_microseconds();
+
     _tgVoip = TgVoip::makeInstance(
         config,
         { derivedStateValue },
@@ -308,6 +332,9 @@ void stop() {
 
         if (recorded) {
           std::cout << finalState.debugLog << std::endl;
+          std::cout << "TIMESTAMPS: " << init_ts << ","
+                    << fircdst_read_ts << "," << last_read_ts << ","
+                    << first_write_ts << "," << last_write_ts << std::endl;
         }
     }
     close_files();
@@ -317,7 +344,7 @@ void stop() {
 
 int main(int argc, char *argv[]) {
     fd_stop = eventfd(0, EFD_SEMAPHORE);
-    rtc::LogMessage::SetLogToStderr(false);
+    //rtc::LogMessage::SetLogToStderr(false);
 
     try {
         call::init(argc, argv);
