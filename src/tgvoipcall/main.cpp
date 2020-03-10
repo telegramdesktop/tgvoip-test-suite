@@ -167,7 +167,11 @@ void init(int argc, char **argv) {
     char buf[16];
     if (sscanf(argv[1], "%15[0-9.]:%hu", buf, &ep.port) != 2)
         throw std::invalid_argument(std::string("Incorrect reflector address: ") + argv[1]);
-    ep.host = buf;
+    TgVoipEdpointHost host = {
+      .ipv4 = std::string(buf),
+      .ipv6 = std::string(),
+    };
+    ep.host = host;
 
     int len;
     sscanf(argv[2], "%*32[0-9a-f]%n", &len);
@@ -333,7 +337,7 @@ void stop() {
         if (recorded) {
           std::cout << finalState.debugLog << std::endl;
           std::cout << "TIMESTAMPS: " << init_ts << ","
-                    << fircdst_read_ts << "," << last_read_ts << ","
+                    << first_read_ts << "," << last_read_ts << ","
                     << first_write_ts << "," << last_write_ts << std::endl;
         }
     }
