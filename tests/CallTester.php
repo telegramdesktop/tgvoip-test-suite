@@ -421,7 +421,7 @@ class CallTester {
 
     $this->copyFileFromCallee($calleeOutPath);
 
-    $rateCommand = "tests/rate-async.sh {$fileCaller} {$callerPreprocessedPath} {$calleeOutPath} 2>> {$outDir}rate_errors.log";
+    $rateCommand = "bash tests/rate-async.sh {$fileCaller} {$callerPreprocessedPath} {$calleeOutPath} 2>> {$outDir}rate_errors.log";
     $allRatings = explode(',', $this->execSync($rateCommand));
 
     $row = [
