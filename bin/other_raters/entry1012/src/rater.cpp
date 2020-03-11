@@ -268,8 +268,8 @@ double Rater::finalRateWeight()
     {
         final = std::max(final - 1.25, 0.0);
     }
-
-    return final;
+    
+    return ((final / 5.0) * 4.0) + 1.0;
 }
 void Rater::resample(int16_t *in, int16_t *out)
 {
