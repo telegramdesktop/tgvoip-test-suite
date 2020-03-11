@@ -42,6 +42,8 @@ CPPFLAGS_RATE	+=	-DRANDOM_PREFIX=tgvoiprate -DOUTSIDE_SPEEX -DRESAMPLE_FULL_SINC
 
 # For debian systems, actually build libopusenc library, too
 LIBOPUSENC			=	/usr/include/opus/opusenc.h /usr/lib/libopusenc.so
+LIBOPUSENCREPO			=	libopusenc
+LIBTGVOIPREPO			=	libtgvoip
 
 CMUTGZ				=	cmuclmtk-0.7.tar.gz
 CMUCLMTK			=	/usr/bin/wfreq2vocab
@@ -67,16 +69,22 @@ ${CMUTGZ}:
 ${CMUCLMTK}:				| ${CMUTGZ}
 					tar -xzf cmuclmtk-0.7.tar.gz && cd cmuclmtk-0.7 && autoreconf -vfi && mkdir -p build && cd build && ../configure --prefix=/usr && make -j$(nproc) && sudo make install && cd ../..
 
-${LIBOPUSENC}:
+${LIBOPUSENCREPO}:
+					git clone https://github.com/xiph/libopusenc
+
+${LIBOPUSENC}:				| ${LIBOPUSENCREPO}
 					cd libopusenc && autoreconf -vfi && mkdir -p build && cd build && ../configure --prefix=/usr && make -j$(nproc) && sudo make install && cd ../..
 
-${TGVOIP}:
+${LIBTGVOIPREPO}:
+					git clone https://github.com/telegramdesktop/libtgvoip -b unstable-2.6
+
+${TGVOIP}:				| ${LIBTGVOIPREPO}
 					cd libtgvoip && autoreconf -vfi && mkdir -p build && cd build && ../configure --enable-production-logging --enable-audio-callback --prefix=/usr && make -j$(shell nproc) && sudo make install && cd ../..
 
 ${TGVOIPCALL}:				${TGVOIP} ${OBJECTS_CALL}
 					${CXX} -o $@ ${OBJECTS_CALL} ${LFLAGS_CALL}
 
-${TGVOIPRATE}:				${OBJECTS_RATE}
+${TGVOIPRATE}:				${OBJECTS_RATE} ${CMUCLMTK}
 					${CXX} -std=c++17 -o $@ ${OBJECTS_RATE} ${LFLAGS_RATE}
 
 ${FIXTRANSCRIPT}:				${OBJECT_TRANSCRIPT}
